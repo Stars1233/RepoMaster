@@ -223,6 +223,10 @@ class EnhancedSidebarManager:
             # Render chat history
             self._render_chat_history(past_chats)
             
+            # Agent mode selector
+            st.markdown("---")
+            self._render_agent_mode_selector()
+            
             # Bottom action area
             st.markdown("---")
             self._render_bottom_actions()
@@ -439,6 +443,54 @@ class EnhancedSidebarManager:
             
         except Exception as e:
             st.error(f"Delete failed: {str(e)}", icon="❌")
+    
+    def _render_agent_mode_selector(self):
+        """Render agent mode selector"""
+        st.markdown('<div class="section-title">🤖 Agent Mode</div>', unsafe_allow_html=True)
+        
+        # Agent mode options
+        agent_modes = {
+            "unified": "🧠 Unified (Auto)",
+            "deepsearch": "🔍 DeepSearch Only",
+            "general_assistant": "💻 Programming Assistant",
+            "repository_agent": "📁 Repository Agent"
+        }
+        
+        # Initialize agent mode in session state
+        if "agent_mode" not in st.session_state:
+            st.session_state.agent_mode = "unified"
+        
+        # Create radio buttons for mode selection
+        selected_mode = st.radio(
+            "Select Agent Mode:",
+            options=list(agent_modes.keys()),
+            format_func=lambda x: agent_modes[x],
+            key="agent_mode_selector",
+            index=list(agent_modes.keys()).index(st.session_state.agent_mode)
+        )
+        
+        # Update session state
+        if selected_mode != st.session_state.agent_mode:
+            st.session_state.agent_mode = selected_mode
+            st.rerun()
+        
+        # Display mode description
+        mode_descriptions = {
+            "unified": "Automatically selects the best agent for your task",
+            "deepsearch": "Advanced web search and information synthesis",
+            "general_assistant": "Code generation and debugging assistance",
+            "repository_agent": "Repository exploration and task execution"
+        }
+        
+        st.markdown(f"""
+        <div style="padding: 0.75rem; background: var(--background-tertiary); border-radius: 0.5rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                {mode_descriptions[selected_mode]}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("---")
     
     def _render_bottom_actions(self):
         """Render bottom action area"""

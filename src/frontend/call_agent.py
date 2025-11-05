@@ -2,6 +2,7 @@ import json
 import streamlit as st
 from configs.oai_config import get_llm_config
 import os
+import asyncio
 from configs.oai_config import get_llm_config
 from src.services.agents.deep_search_agent import AutogenDeepSearchAgent
 from src.services.agents.agent_client import EnhancedMessageProcessor
@@ -23,6 +24,12 @@ class AgentCaller:
         self.repo_master = RepoMasterAgent(
             llm_config=self.llm_config,
             code_execution_config=self.code_execution_config,
+        )
+        
+        # Initialize DeepSearch agent
+        self.deep_search_agent = AutogenDeepSearchAgent(
+            llm_config=self.llm_config,
+            code_execution_config=self.code_execution_config
         )
     
     # Optimize dialogue
@@ -109,7 +116,30 @@ class AgentCaller:
             
             messages = self.retrieve_user_memory(user_id, messages)
 
-        ai_response = self.repo_master.solve_task_with_repo(messages)
+        # Get agent mode from session state
+        agent_mode = st.session_state.get("agent_mode", "unified")
+        
+        # Call different agents based on mode
+        if agent_mode == "deepsearch":
+            # Use DeepSearch agent
+            ai_response = asyncio.run(self.deep_search_agent.deep_search(messages))
+        elif agent_mode == "general_assistant":
+            # Use General Programming Assistant
+            ai_response = self.repo_master.run_general_code_assistant(
+                task_description=messages,
+                work_directory=self.code_execution_config.get("work_dir")
+            )
+        elif agent_mode == "repository_agent":
+            # Use Repository Agent
+            # For repository agent, we need to extract repository info from messages
+            # For now, use the unified interface
+            ai_response = self.repo_master.run_repository_agent(
+                task_description=messages,
+                repository=None  # Can be enhanced to extract from messages
+            )
+        else:
+            # Default: unified mode
+            ai_response = self.repo_master.solve_task_with_repo(messages)
         
         if isinstance(ai_response, tuple):
             ai_response, chat_history = ai_response

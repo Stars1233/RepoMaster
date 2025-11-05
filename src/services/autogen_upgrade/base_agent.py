@@ -1,4 +1,3 @@
-import torch
 import random
 import os
 import sys
@@ -241,6 +240,7 @@ class ExtendedUserProxyAgent(BasicConversableAgent, TrackableUserProxyAgent):
     def check_gpu_usage(self):
         # Detect GPU usage, only use idle GPUs
         try:
+            import torch
             import nvidia_smi
             nvidia_smi.nvmlInit()
             free_gpus = []

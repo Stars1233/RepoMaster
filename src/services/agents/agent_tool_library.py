@@ -189,9 +189,9 @@ Please analyze the provided webpage browsing results based on the above principl
             )
         except Exception as e:
             import traceback
-            print(f"Error: {e}, {traceback.format_exc()}")
+            print(f"Error Browsing: {e}, {traceback.format_exc()}")
             import pdb; pdb.set_trace()
-            return f"Error: {e}, {traceback.format_exc()}"
+            return f"Error Browsing: {e}, {traceback.format_exc()}"
         print(f"Browsing Result: {response}")
         return f"\n\n<Task>\n{query}\n\n<Browsing URL>\n{url}\n\n<Browsing Result>\n\n{response}\n\nPlease check the information, if not enough, please search more information."
 
@@ -224,7 +224,7 @@ Please analyze the provided webpage browsing results based on the above principl
                 )
         except Exception as e:
             import traceback
-            return f"Error: {e}, {traceback.format_exc()}"
+            return f"Error Creating Code: {e}, {traceback.format_exc()}"
 
     async def deep_search_tool(
         self,
